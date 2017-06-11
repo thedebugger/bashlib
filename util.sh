@@ -22,7 +22,7 @@ function log()
     message="DRYRUN:${message}"
   fi
   # all logs to stderr
-  echo "${1}" "${2}" 1>&2
+  echo "${level}" "${message}" 1>&2
 }
 
 function how_to_pass_arrays()
@@ -43,7 +43,7 @@ function error_if_empty()
 
 function print_help_if_empty()
 {
-  if ! $(error_if_empty "${1}" "${2:-}"); then
+  if ! error_if_empty "${1}" "${2:-}"; then
     usage 2 && return 1
   fi
 }
@@ -57,11 +57,11 @@ function send_dd_event()
 {
   #http://docs.datadoghq.com/guides/dogstatsd/
   #FORMAT: _e{title.length,text.length}:title|text|d:date_happened|h:hostname|p:priority|t:alert_type|#tag1,tag2
+  declare -r hostname
   declare -r text="${1}"
-  declare -r source_type="${2}"
   declare -r alert_type="${2:-info}"
   declare -r title="${3}"
-  declare -r hostname="$(hostname)"
+  hostname="$(hostname)"
   # TODO:  pass variable
   declare -r tags="env:foo,bar:meh"
   declare -r event_packet="_e{${#title},${#text}}:${title}|${text}|h:${hostname}|t:${alert_type}|${tags}"
